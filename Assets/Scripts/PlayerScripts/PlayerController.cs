@@ -2,49 +2,54 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
     [SerializeField] private float baseSpeed = 5f;
-    
-    private Rigidbody2D rb;
-    private PlayerStats stats;
+
+    [SerializeField] private Rigidbody2D rb;
+    [SerializeField] private PlayerStats stats;
+    [SerializeField] private Animator animator;
     private Vector2 moveDirection;
-    private Animator animator;
-    
+
     private void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        stats = GetComponent<PlayerStats>();
-        animator = GetComponent<Animator>();
+        //rb = GetComponent<Rigidbody2D>();
+        //stats = GetComponent<PlayerStats>();
+        //animator = GetComponent<Animator>();
     }
-    
+
     private void Update()
     {
-        moveDirection = InputManager.Instance.MovementInput;
-        //UpdateAnimation();
+        moveDirection = InputManager.Instance.SwipeInput;
+        UpdateAnimation();
     }
-    
+
     private void FixedUpdate()
     {
         Move();
     }
-    
+
     private void Move()
     {
         float currentSpeed = baseSpeed * (1 + stats.agilityModifier);
         rb.velocity = moveDirection.normalized * currentSpeed;
+        //Debug.Log("Move Value: "+moveDirection);
     }
-    
+
     private void UpdateAnimation()
     {
         if (animator != null)
         {
-            animator.SetFloat("Speed", moveDirection.magnitude);
             if (moveDirection != Vector2.zero)
             {
-                animator.SetFloat("Horizontal", moveDirection.x);
-                animator.SetFloat("Vertical", moveDirection.y);
+                //move in animation here
+                animator.SetBool("isMoving", true);
+                //Debug.Log("animator values changed");
+            }
+            else
+            {
+                animator.SetBool("isMoving", false);
             }
         }
     }
