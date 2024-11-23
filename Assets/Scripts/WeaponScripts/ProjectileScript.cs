@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ProjectileScript : MonoBehaviour
 {
-    private float damage;
+    [SerializeField] private float damage;
     private bool hasHit;
     
     public void Initialize(float damage)
@@ -20,7 +20,7 @@ public class ProjectileScript : MonoBehaviour
         {
             other.GetComponent<EnemyBase>().TakeDamage(damage);
             hasHit = true;
-            Destroy(gameObject);
+            Destroy(this.gameObject);
         }
     }
 }

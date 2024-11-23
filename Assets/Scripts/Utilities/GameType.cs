@@ -16,15 +16,18 @@ namespace GameTypes
 
     public enum EnemyType
     {
-        Basic,
-        FastMelee,
-        RangedAttacker,
-        Tank,
-        Boss,
-        Swarmer,
-        Elite,
-        Healer,
-        Summoner
+        Ghost,
+        Goblin,
+        Skeleton,
+        Boss
+    }
+
+    [System.Serializable]
+    public class WaveData
+    {
+        public int waveNumber;
+        public float difficulty;
+        public int baseEnemyCount;
     }
 
     public enum PickupType

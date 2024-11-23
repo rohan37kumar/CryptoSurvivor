@@ -26,9 +26,4 @@ public class GameManager : MonoBehaviour
         else Destroy(gameObject);
     }
     
-    public void DistributeTokens()
-    {
-        // Calculate token distribution based on gem collection
-        // Update player wallets
-    }
 }
