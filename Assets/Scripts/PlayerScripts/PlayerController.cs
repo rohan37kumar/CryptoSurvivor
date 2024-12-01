@@ -1,9 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("Health Settings")]
+    [SerializeField] private Slider healthBarSlider;
+    [SerializeField] private float maxHealth = 100f;
+    private float currentHealth;
+
+
     [Header("Movement Settings")]
     [SerializeField] private float baseSpeed = 5f;
 
@@ -15,25 +22,65 @@ public class PlayerController : MonoBehaviour
     private Vector2 moveDirection;
 
     [Header("Attack Settings")]
-    [SerializeField] private float attackRange = 1.5f;
+    [SerializeField] private float attackRange = 1f;
+    [SerializeField] private float attackAngle = 45f;
+    [SerializeField] private float closeRangeRadius = 0.3f;
     [SerializeField] private float attackInterval = 1f;
+    [SerializeField] private float attackDuration = 0.5f;
+    private bool isAttacking = false;
+
     private void Start()
     {
         spriteRenderer = playerImage.GetComponent<SpriteRenderer>();
         animator = playerImage.GetComponent<Animator>();
+
+        currentHealth = maxHealth;
+        UpdateHealthBar();
 
         StartCoroutine(ContinuousAttack());
     }
 
     private void Update()
     {
-        moveDirection = InputManager.Instance.SwipeInput;
+        if (!isAttacking) 
+        {
+            moveDirection = InputManager.Instance.SwipeInput;
+        }
         UpdateAnimation();
     }
 
     private void FixedUpdate()
     {
-        Move();
+        if (!isAttacking)
+        {
+            Move();
+        }
+    }
+
+    public void TakeDamage(float damage)
+    {
+        currentHealth -= damage;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); 
+        UpdateHealthBar();
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void UpdateHealthBar()
+    {
+        if (healthBarSlider != null)
+        {
+            healthBarSlider.value = currentHealth / maxHealth;
+        }
+    }
+    private void Die()
+    {
+        rb.velocity = Vector2.zero;
+        this.enabled = false;
+        Debug.Log("Player has died! \nDisplay scores:\n");
     }
 
     private void Move()
@@ -46,27 +93,13 @@ public class PlayerController : MonoBehaviour
     {
         if (animator != null)
         {
-            if (moveDirection != Vector2.zero)
-            {
-                animator.SetBool("isMoving", true);
-                //Image flipping code here...
-                if (spriteRenderer != null)
-                {
-                    if (moveDirection.x < 0) // Moving left
-                    {
-                        spriteRenderer.flipX = true;
-                    }
-                    else if (moveDirection.x > 0) // Moving right
-                    {
-                        spriteRenderer.flipX = false;
-                    }
-                }
+            animator.SetBool("isMoving", moveDirection != Vector2.zero);
 
-            }
-            else
-            {
-                animator.SetBool("isMoving", false);
-            }
+            // Flip the sprite based on movement direction
+            if (moveDirection.x < 0)
+                spriteRenderer.flipX = true;
+            else if (moveDirection.x > 0)
+                spriteRenderer.flipX = false;
         }
     }
 
@@ -74,36 +107,56 @@ public class PlayerController : MonoBehaviour
     {
         while (true)
         {
-            // Trigger attack animation
             animator.SetBool("playerAttacks", true);
+            isAttacking = true;
 
-            // Damage enemies in the horizontal direction
+            rb.velocity = Vector2.zero;
+
+            yield return new WaitForSeconds(attackDuration);
+
+            isAttacking = false;
+            animator.SetBool("playerAttacks", false);
+
             DealDamageToEnemies();
 
-            // Wait for the next attack interval
-            yield return new WaitForSeconds(attackInterval);
-
-            animator.SetBool("playerAttacks", false); // Reset attack animation
+            yield return new WaitForSeconds(attackInterval - attackDuration);
         }
     }
 
     private void DealDamageToEnemies()
     {
-        Vector2 attackDirection = spriteRenderer.flipX ? Vector2.left : Vector2.right;
-        RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, attackDirection, attackRange);
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, attackRange);
 
-        foreach (RaycastHit2D hit in hits)
+        Vector2 attackDirection = spriteRenderer.flipX ? Vector2.left : Vector2.right;
+
+        foreach (Collider2D hit in hits)
         {
-            if (hit.collider.CompareTag("Enemy"))
+            if (hit.CompareTag("Enemy"))
             {
-                // Attempt to get the EnemyBase component
-                EnemyBase enemy = hit.collider.GetComponent<EnemyBase>();
-                if (enemy != null)
+                Vector2 directionToEnemy = (hit.transform.position - transform.position).normalized;
+                float distanceToEnemy = Vector2.Distance(transform.position, hit.transform.position);
+
+                if (distanceToEnemy <= closeRangeRadius)
                 {
-                    float damage = stats.baseStrength + stats.strengthLevel * 2;
-                    enemy.TakeDamage(damage);
+                    ApplyDamage(hit);
+                    continue; // Skip angle check for close enemies
+                }
+
+                float angleToEnemy = Vector2.Angle(attackDirection, directionToEnemy);
+                if (angleToEnemy <= attackAngle / 2)
+                {
+                    ApplyDamage(hit);
                 }
             }
+        }
+    }
+    private void ApplyDamage(Collider2D enemyCollider)
+    {
+        EnemyBase enemy = enemyCollider.GetComponent<EnemyBase>();
+        if (enemy != null)
+        {
+            float damage = stats.baseStrength + stats.strengthLevel * 2;
+            enemy.TakeDamage(damage);
         }
     }
 

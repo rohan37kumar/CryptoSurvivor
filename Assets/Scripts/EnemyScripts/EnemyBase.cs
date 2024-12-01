@@ -5,6 +5,7 @@ using UnityEngine;
 public abstract class EnemyBase : MonoBehaviour
 {
     [SerializeField] protected GameObject player;
+    protected PlayerController playerController;
     protected SpriteRenderer spriteRenderer;
 
     [Header("Base Stats")]
@@ -21,7 +22,7 @@ public abstract class EnemyBase : MonoBehaviour
         {
             player = GameObject.FindGameObjectWithTag("Player");
         }
-
+        playerController = GetComponent<PlayerController>();
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 

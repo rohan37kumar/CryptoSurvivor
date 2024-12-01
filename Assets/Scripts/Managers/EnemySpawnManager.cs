@@ -21,15 +21,14 @@ public class EnemySpawnManager : MonoBehaviour
     [SerializeField] private Transform player;
     [SerializeField] private float minSpawnDistance = 15f;
     [SerializeField] private float maxSpawnDistance = 25f;
-    
+
     [Header("Difficulty Settings")]
     [SerializeField] private float globalDifficultyMultiplier = 1f;
     [SerializeField] private float difficultyIncreaseRate = 0.1f;
     [SerializeField] private int enemiesPerWaveIncrease = 1;
-    
+
     [Header("Special Spawn Settings")]
     [SerializeField] private float bossWaveInterval = 5;
-    [SerializeField] private float specialEnemyChance = 0.1f;
 
     private float waveTimer;
     private float spawnTimer;
@@ -45,7 +44,7 @@ public class EnemySpawnManager : MonoBehaviour
         {
             enemyFactory = gameObject.AddComponent<EnemyFactory>();
         }
-        
+
         InitializeWave();
     }
 
@@ -59,20 +58,20 @@ public class EnemySpawnManager : MonoBehaviour
     private void Update()
     {
         if (currentWave >= waves.Length) return;
-        
+
         Wave wave = waves[currentWave];
         spawnTimer += Time.deltaTime;
         waveTimer += Time.deltaTime;
-        
+
         // Clean up destroyed enemies from the list
         activeEnemies.RemoveAll(enemy => enemy == null);
-        
+
         if (spawnTimer >= GetAdjustedSpawnInterval(wave))
         {
             SpawnEnemies(wave);
             spawnTimer = 0;
         }
-        
+
         if (waveTimer >= wave.waveDuration)
         {
             AdvanceWave();
@@ -84,11 +83,11 @@ public class EnemySpawnManager : MonoBehaviour
         currentWave++;
         waveTimer = 0;
         spawnTimer = 0;
-        
+
         if (currentWave < waves.Length)
         {
             UpdateDifficulty();
-            
+
             // Spawn boss every few waves
             if (currentWave % bossWaveInterval == 0)
             {
@@ -110,12 +109,12 @@ public class EnemySpawnManager : MonoBehaviour
     private void SpawnEnemies(Wave wave)
     {
         int enemiesToSpawn = CalculateEnemiesPerSpawn(wave);
-        
+
         for (int i = 0; i < enemiesToSpawn; i++)
         {
             EnemyType enemyType = SelectEnemyType(wave);
             Vector2 spawnPosition = GetRandomSpawnPosition();
-            
+
             GameObject enemy = enemyFactory.CreateEnemy(enemyType, spawnPosition);
             if (enemy != null)
             {
@@ -133,12 +132,6 @@ public class EnemySpawnManager : MonoBehaviour
 
     private EnemyType SelectEnemyType(Wave wave)
     {
-        // Chance to spawn special enemy
-        if (Random.value < specialEnemyChance * globalDifficultyMultiplier)
-        {
-            return EnemyType.Boss;
-        }
-        
         return wave.enemyTypes[Random.Range(0, wave.enemyTypes.Length)];
     }
 
@@ -161,12 +154,12 @@ public class EnemySpawnManager : MonoBehaviour
     {
         float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
         float distance = Random.Range(minSpawnDistance, maxSpawnDistance);
-        
+
         Vector2 spawnOffset = new Vector2(
             Mathf.Cos(angle) * distance,
             Mathf.Sin(angle) * distance
         );
-        
+
         return (Vector2)player.position + spawnOffset;
     }
 

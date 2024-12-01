@@ -59,6 +59,8 @@ public class BOSSEnemy : EnemyBase
                 animator.SetBool("isAtk", true);
             }
             //Debug.Log("Boss attacks the player!");
+            playerController.TakeDamage(20.0f);
+
             attackTimer = attackCooldown;
         }
         else
