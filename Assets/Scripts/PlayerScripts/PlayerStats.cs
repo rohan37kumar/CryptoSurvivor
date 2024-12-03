@@ -25,7 +25,7 @@ public class PlayerStats : MonoBehaviour
     public int luckLevel;
     
     [Header("Resources")]
-    public int gems;
+    public int gold;
     public int experience;
     public int level;
     public float cryptoTokens;

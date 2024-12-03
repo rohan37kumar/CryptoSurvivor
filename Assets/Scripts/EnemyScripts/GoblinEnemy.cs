@@ -82,7 +82,6 @@ public class GoblinEnemy : EnemyBase
         if (health <= 0)
         {
             OnDeath();
-            Destroy(gameObject);
         }
     }
 }

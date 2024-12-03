@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using GameTypes;
 
 public class GameManager : MonoBehaviour
@@ -10,20 +9,33 @@ public class GameManager : MonoBehaviour
     [Header("Game State")]
     public float gameTime;
     public bool isGamePaused;
-
     public GameState currentState;
     
-    /*
-    [Header("Crypto Integration")]
-    public int activeDailyPlayers;
-    public float tokenDistributionThreshold;
-    public float tokenPool;
-    */
+    [Header("Session Stats")]
+    private int goldCollectedThisSession;
 
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+        
+        goldCollectedThisSession = 0;
     }
-    
+
+    public void AddSessionGold(int amount)
+    {
+        goldCollectedThisSession += amount;
+    }
+
+    public void EndGame(bool playerDied)
+    {
+        // Save collected gold to persistent storage
+        if (AppManager.Instance != null)
+        {
+            AppManager.Instance.AddGold(goldCollectedThisSession);
+        }
+
+        // Return to main menu
+        SceneManager.LoadScene("MainMenu");
+    }
 }

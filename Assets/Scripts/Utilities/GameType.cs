@@ -9,6 +9,7 @@ namespace GameTypes
         Playing,
         Paused,
         GameOver,
+        Victory,
         LevelUp,
         Shopping,
         Loading

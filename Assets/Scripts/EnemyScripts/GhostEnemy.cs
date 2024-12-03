@@ -62,7 +62,6 @@ public class GhostEnemy : EnemyBase
         if (health <= 0)
         {
             OnDeath();
-            Destroy(gameObject);
         }
     }
 

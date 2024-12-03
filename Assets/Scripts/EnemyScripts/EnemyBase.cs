@@ -47,9 +47,11 @@ public abstract class EnemyBase : MonoBehaviour
 
     protected virtual void OnDeath()
     {
-        Debug.Log("enemy died");
-        // Drop resources
-        // Spawn effects
-        // Update player statistics
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.AddSessionGold(gemDropAmount);
+        }
+
+        Destroy(gameObject);
     }
 }

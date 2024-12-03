@@ -42,7 +42,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (!isAttacking) 
+        if (!isAttacking)
         {
             moveDirection = InputManager.Instance.SwipeInput;
         }
@@ -60,7 +60,7 @@ public class PlayerController : MonoBehaviour
     public void TakeDamage(float damage)
     {
         currentHealth -= damage;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); 
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         UpdateHealthBar();
 
         if (currentHealth <= 0)
@@ -80,7 +80,12 @@ public class PlayerController : MonoBehaviour
     {
         rb.velocity = Vector2.zero;
         this.enabled = false;
-        Debug.Log("Player has died! \nDisplay scores:\n");
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.EndGame(true);
+        }
+        Debug.Log("Player has died!!");
     }
 
     private void Move()

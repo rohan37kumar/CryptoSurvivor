@@ -7,6 +7,7 @@ using UnityEngine.Networking;
 
 public class AEONPaymentManager : MonoBehaviour
 {
+    private const float COST_PER_ENERGY = 1; //amount of dollars for one energy
 
     private string secretKey;
     private string aeonAPI;
@@ -17,41 +18,30 @@ public class AEONPaymentManager : MonoBehaviour
     private string appId;
     private string merchantOrderNo;
     private string userId;
-    private string orderAmount;
     private string payCurrency;
     private string paymentTokens;
     private string paymentExchange;
 
-
-    private string GenerateSignature(Dictionary<string, string> parameters)
+    private void Awake()
     {
-        // Sort parameters alphabetically by key 
-        var sortedParams = new SortedDictionary<string, string>(parameters);
-        StringBuilder concatenatedParams = new StringBuilder();
-
-        // Build the signature string in the format: key1=value1&key2=value2... like a JSON
-        foreach (var param in sortedParams)
-        {
-            concatenatedParams.Append($"{param.Key}={param.Value}&");
-        }
-
-        // Append the secret key at the end 
-        concatenatedParams.Append($"key={secretKey}");
-
-        // Generate the SHA-512 hash of the concatenated string 
-        using (SHA512 sha512 = SHA512.Create())
-        {
-            byte[] bytes = sha512.ComputeHash(Encoding.UTF8.GetBytes(concatenatedParams.ToString()));
-            StringBuilder hash = new StringBuilder();
-            foreach (byte b in bytes)
-            {
-                hash.Append(b.ToString("X2")); // Convert to uppercase hex string 
-            }
-            return hash.ToString();
-        }
+        SetValues();
     }
 
-    public IEnumerator MakePayment(float amount)
+    private void SetValues()
+    {
+        //TODO: set values as in the mail provided
+        Debug.Log("setting values...");
+    }
+
+    public int BuyXEnergy(int numEnergy)
+    {
+        float amountToPay = numEnergy * COST_PER_ENERGY;
+        MakePayment(amountToPay);
+
+        return 0;
+    }
+
+    private IEnumerator MakePayment(float amount)
     {
         // Prepare data to send in the request 
         Dictionary<string, string> paymentData = new Dictionary<string, string>
@@ -100,6 +90,34 @@ public class AEONPaymentManager : MonoBehaviour
             {
                 Debug.LogError("Error: " + request.error);
             }
+        }
+    }
+
+    private string GenerateSignature(Dictionary<string, string> parameters)
+    {
+        // Sort parameters alphabetically by key 
+        var sortedParams = new SortedDictionary<string, string>(parameters);
+        StringBuilder concatenatedParams = new StringBuilder();
+
+        // Build the signature string in the format: key1=value1&key2=value2... like a JSON
+        foreach (var param in sortedParams)
+        {
+            concatenatedParams.Append($"{param.Key}={param.Value}&");
+        }
+
+        // Append the secret key at the end 
+        concatenatedParams.Append($"key={secretKey}");
+
+        // Generate the SHA-512 hash of the concatenated string 
+        using (SHA512 sha512 = SHA512.Create())
+        {
+            byte[] bytes = sha512.ComputeHash(Encoding.UTF8.GetBytes(concatenatedParams.ToString()));
+            StringBuilder hash = new StringBuilder();
+            foreach (byte b in bytes)
+            {
+                hash.Append(b.ToString("X2")); // Convert to uppercase hex string 
+            }
+            return hash.ToString();
         }
     }
 
