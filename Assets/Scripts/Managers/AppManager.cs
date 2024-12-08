@@ -92,6 +92,7 @@ public class AppManager : MonoBehaviour
 
     public void StartGame()
     {
+        Debug.Log("Starting game...");
         if (CurrentEnergy >= ENERGY_COST_PER_PLAY)
         {
             CurrentEnergy -= ENERGY_COST_PER_PLAY;
