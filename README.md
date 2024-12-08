@@ -15,7 +15,4 @@
 - **Serialized Scene Management:** Organized and efficient scene handling for better performance.
 
 
-```
-
-
 Enjoy surviving in **CryptoSurvivor**!
