@@ -50851,7 +50851,7 @@ MonoBehaviour:
   agilityLevel: 10
   agilityModifier: 1
   luckLevel: 14
-  gems: 0
+  gold: 0
   experience: 0
   level: 1
   cryptoTokens: 0
@@ -52200,7 +52200,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5385167695963377501, guid: 2cf571acb706308479441035ff44f377, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -52225,7 +52225,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7356155284267549690, guid: b677ef62f6affa54192205b09899b88f, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7848122149988033346, guid: b677ef62f6affa54192205b09899b88f, type: 3}
       propertyPath: m_LocalScale.x
@@ -52303,7 +52303,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3889852398449447379, guid: e331ed0fa4dffa348a68d6f852549be6, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5187996440150772540, guid: e331ed0fa4dffa348a68d6f852549be6, type: 3}
       propertyPath: m_LocalScale.x

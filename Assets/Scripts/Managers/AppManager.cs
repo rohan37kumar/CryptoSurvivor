@@ -83,9 +83,9 @@ public class AppManager : MonoBehaviour
         if (scene.name == "MainMenu")
         {
             // Reconnect UI references as they're destroyed on scene load
-            goldText = GameObject.Find("GoldText").GetComponent<Text>();
-            energyText = GameObject.Find("EnergyText").GetComponent<Text>();
-            energyTimerText = GameObject.Find("EnergyTimerText").GetComponent<Text>();
+            // goldText = GameObject.Find("GoldText").GetComponent<Text>();
+            // energyText = GameObject.Find("EnergyText").GetComponent<Text>();
+            // energyTimerText = GameObject.Find("EnergyTimerText").GetComponent<Text>();
             UpdateUI();
         }
     }
@@ -272,17 +272,16 @@ public class AppManager : MonoBehaviour
     public void BuyEnergy(int numEnergy)
     {
         Debug.Log("initiating payment gateway...");
-        PromptBuyUI();
 
         int energyToAdd = Mathf.Min(numEnergy, MAX_ENERGY - CurrentEnergy);
 
         paymentManager.BuyXEnergy(energyToAdd);
     }
 
-    private void PromptBuyUI()
+    public void PromptBuyUI()
     {
+        Debug.Log("buy panel showing");
         buyPanel.SetActive(true);
-
     }
 
     private void OnApplicationPause(bool pauseStatus)
@@ -301,5 +300,4 @@ public class AppManager : MonoBehaviour
         SavePlayerData();
     }
 }
-
-//checking cursor
+//code ends here
