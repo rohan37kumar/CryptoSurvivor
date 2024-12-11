@@ -28,6 +28,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float attackInterval = 1f;
     [SerializeField] private float attackDuration = 0.5f;
     private bool isAttacking = false;
+    private float attackTimer = 0f;
 
     private void Start()
     {
@@ -37,7 +38,10 @@ public class PlayerController : MonoBehaviour
         currentHealth = maxHealth;
         UpdateHealthBar();
 
-        StartCoroutine(ContinuousAttack());
+        // if (!isAttacking)
+        // {
+        //     StartCoroutine(ContinuousAttack());
+        // }
     }
 
     private void Update()
@@ -45,6 +49,7 @@ public class PlayerController : MonoBehaviour
         if (!isAttacking)
         {
             moveDirection = InputManager.Instance.SwipeInput;
+            HandleAttack();
         }
         UpdateAnimation();
     }
@@ -108,24 +113,34 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private IEnumerator ContinuousAttack()
+    private void HandleAttack()
     {
-        while (true)
+        attackTimer -= Time.deltaTime;
+
+        if (attackTimer <= 0f)
         {
-            animator.SetBool("playerAttacks", true);
-            isAttacking = true;
-
-            rb.velocity = Vector2.zero;
-
-            yield return new WaitForSeconds(attackDuration);
-
-            isAttacking = false;
-            animator.SetBool("playerAttacks", false);
-
-            DealDamageToEnemies();
-
-            yield return new WaitForSeconds(attackInterval - attackDuration);
+            StartAttack();
+            attackTimer = attackInterval; // Reset the timer for the next attack
         }
+    }
+
+    private void StartAttack()
+    {
+        animator.SetBool("playerAttacks", true);
+        isAttacking = true;
+
+        rb.velocity = Vector2.zero;
+
+        // Simulate attack duration
+        Invoke(nameof(EndAttack), attackDuration);
+    }
+
+    private void EndAttack()
+    {
+        isAttacking = false;
+        animator.SetBool("playerAttacks", false);
+
+        DealDamageToEnemies();
     }
 
     private void DealDamageToEnemies()
