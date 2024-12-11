@@ -17,12 +17,16 @@ public abstract class EnemyBase : MonoBehaviour
 
     protected virtual void Start()
     {
-        // If player reference is not set, try to find it
         if (player == null)
         {
             player = GameObject.FindGameObjectWithTag("Player");
         }
-        playerController = GetComponent<PlayerController>();
+        
+        if (player != null)
+        {
+            playerController = player.GetComponent<PlayerController>();
+        }
+        
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 

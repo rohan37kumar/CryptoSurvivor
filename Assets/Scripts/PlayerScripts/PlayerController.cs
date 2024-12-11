@@ -83,7 +83,7 @@ public class PlayerController : MonoBehaviour
 
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.EndGame(true);
+            GameManager.Instance.EndGame();
         }
         Debug.Log("Player has died!!");
     }
