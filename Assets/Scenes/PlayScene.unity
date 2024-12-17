@@ -51299,7 +51299,7 @@ MonoBehaviour:
   attackRange: 1
   attackAngle: 60
   closeRangeRadius: 0.3
-  attackInterval: 2
+  attackInterval: 3
   attackDuration: 0.3
 --- !u!70 &646887501
 CapsuleCollider2D:
@@ -51689,14 +51689,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 875450233}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1e3499adb79be19438490a72fabc1d07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   waves:
   - enemyTypes: 000000000100000002000000
-    spawnInterval: 3
+    spawnInterval: 5
     baseEnemiesPerSpawn: 5
     waveDuration: 60
     includesBoss: 0
@@ -52870,6 +52870,10 @@ PrefabInstance:
     - target: {fileID: 2328783789904421126, guid: 7f243cec748a1e44bbaa74ece8636638, type: 3}
       propertyPath: m_Name
       value: BOSS_skeleton_0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2328783789904421126, guid: 7f243cec748a1e44bbaa74ece8636638, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4739798199288623877, guid: 7f243cec748a1e44bbaa74ece8636638, type: 3}
       propertyPath: player
