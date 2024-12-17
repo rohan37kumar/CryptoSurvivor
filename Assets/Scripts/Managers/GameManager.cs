@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using GameTypes;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
@@ -60,14 +61,37 @@ public class GameManager : MonoBehaviour
         }
 
         goldCollectedThisSession = 0;
+        Time.timeScale = 1f;
+        
+        // Load MainMenu scene
+        StartCoroutine(LoadMainMenuScene());
+    }
 
-        SceneManager.LoadScene("MainMenu");
+    private IEnumerator LoadMainMenuScene()
+    {
+        // Load the scene asynchronously
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("MainMenu");
+        
+        // Wait until the scene is fully loaded
+        while (!asyncLoad.isDone)
+        {
+            yield return null;
+        }
     }
 
     public void QuitGame()
     {
         Debug.Log("Quitting game...");
         Application.Quit();
+    }
+
+    private void OnDestroy()
+    {
+        // Perform any necessary cleanup here
+        if (isGamePaused)
+        {
+            Time.timeScale = 1f;
+        }
     }
 
 }

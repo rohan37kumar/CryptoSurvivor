@@ -36,7 +36,9 @@ public class AEONPaymentManager : MonoBehaviour
     public int BuyXEnergy(int numEnergy)
     {
         float amountToPay = numEnergy * COST_PER_ENERGY;
-        MakePayment(amountToPay);
+
+        //call this function to make the payment
+        //MakePayment(amountToPay);
 
         return 0;
     }

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System;
+using System.Collections;
 
 public class AppManager : MonoBehaviour
 {
@@ -11,23 +12,14 @@ public class AppManager : MonoBehaviour
     public int CurrentGold;
     public int CurrentEnergy;
 
-    [Header("UI References")]
-    [SerializeField] private Text goldText;
-    [SerializeField] private Text energyText;
-    [SerializeField] private GameObject buyPanel;
-    private const string PLAY_SCENE_NAME = "PlayScene";
-
     [Header("Energy System")]
     private const int MAX_ENERGY = 10;
     private const int ENERGY_COST_PER_PLAY = 1;
-    private const int MINUTES_PER_ENERGY = 60; // One energy per hour
+    private const int MINUTES_PER_ENERGY = 60;
     private DateTime lastEnergyUpdateTime;
-    [SerializeField] private Text energyTimerText;
-
 
     private SaveManager saveManager;
     private AEONPaymentManager paymentManager;
-
 
     [Header("Audio Settings")]
     [SerializeField] private AudioClip bkgMusic;
@@ -40,24 +32,21 @@ public class AppManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-
-            /*
-            if (FindObjectOfType<SaveManager>() == null)
-            {
-                new GameObject("SaveManager").AddComponent<SaveManager>();
-            }
-            saveManager = SaveManager.Instance;
-            */
+            InitializeManagers();
         }
         else
         {
+            // If an instance already exists, destroy this one
             Destroy(gameObject);
-            return;
         }
 
-        paymentManager = this.gameObject.GetComponent<AEONPaymentManager>();
-        buyPanel.SetActive(false);
+        //Remove this after testing
+        GetEnergyForDev();
+    }
 
+    private void InitializeManagers()
+    {
+        paymentManager = GetComponent<AEONPaymentManager>();
         LoadPlayerData();
         SetupEnergySystem();
         SetupSound();
@@ -73,52 +62,66 @@ public class AppManager : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    private void Start()
-    {
-        UpdateUI();
-    }
-
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (scene.name == "MainMenu")
         {
-            // Reconnect UI references as they're destroyed on scene load
-            // goldText = GameObject.Find("GoldText").GetComponent<Text>();
-            // energyText = GameObject.Find("EnergyText").GetComponent<Text>();
-            // energyTimerText = GameObject.Find("EnergyTimerText").GetComponent<Text>();
-            UpdateUI();
+            Time.timeScale = 1f;
+            Canvas.ForceUpdateCanvases();
+
+            // UpdateUI();
+            // ShowMainMenuUI();
+            StartCoroutine(InitializeUIAfterLoad());
         }
     }
 
-    public void StartGame()
+    private IEnumerator InitializeUIAfterLoad()
     {
-        Debug.Log("Starting game...");
-        if (CurrentEnergy >= ENERGY_COST_PER_PLAY)
-        {
-            CurrentEnergy -= ENERGY_COST_PER_PLAY;
-            SavePlayerData();
-            UpdateUI();
-            SceneManager.LoadScene(PLAY_SCENE_NAME);
-        }
-        else
-        {
-            Debug.Log("Not enough energy!");
-            // Show UI notification to player
-        }
-    }
-
-    public void AddGold(int amount)
-    {
-        CurrentGold += amount;
-        SavePlayerData();
+        // Wait for a frame to ensure all objects are initialized
+        yield return null;
+        
+        // Update UI
         UpdateUI();
+        
     }
 
     private void UpdateUI()
     {
-        if (goldText != null) goldText.text = $"{CurrentGold}";
-        if (energyText != null) energyText.text = $"{CurrentEnergy}/{MAX_ENERGY}";
-        UpdateEnergyTimer();
+        if (UIManagerMainMenu.Instance != null)
+        {
+            UIManagerMainMenu.Instance.UpdateResourceUI(CurrentGold, CurrentEnergy, MAX_ENERGY);
+            //UpdateEnergyTimer();
+        }
+    }
+
+    private void UpdateEnergyTimer()
+    {
+        if (CurrentEnergy >= MAX_ENERGY)
+        {
+            UIManagerMainMenu.Instance.UpdateEnergyTimerUI("Full Energy");
+            return;
+        }
+
+        TimeSpan timeUntilNextEnergy = lastEnergyUpdateTime.AddMinutes(MINUTES_PER_ENERGY) - DateTime.Now;
+
+        if (timeUntilNextEnergy.TotalSeconds > 0)
+        {
+            string timerText = $"Next Energy in: {timeUntilNextEnergy.Minutes:D2}:{timeUntilNextEnergy.Seconds:D2}";
+            UIManagerMainMenu.Instance.UpdateEnergyTimerUI(timerText);
+        }
+        else
+        {
+            UpdateEnergyBasedOnTime();
+        }
+    }
+
+    public void PromptBuyUI()
+    {
+        //Debug.Log("buy UI panel display");
+        if (UIManagerMainMenu.Instance != null)
+        {
+            UIManagerMainMenu.Instance.ToggleBuyPanel();
+        }
     }
 
     private void SetupEnergySystem()
@@ -179,33 +182,12 @@ public class AppManager : MonoBehaviour
         UpdateUI();
     }
 
-    private void UpdateEnergyTimer()
-    {
-        if (CurrentEnergy >= MAX_ENERGY)
-        {
-            if (energyTimerText != null)
-            {
-                energyTimerText.text = "Full Energy";
-            }
-            return;
-        }
-
-        TimeSpan timeUntilNextEnergy = lastEnergyUpdateTime.AddMinutes(MINUTES_PER_ENERGY) - DateTime.Now;
-
-        if (timeUntilNextEnergy.TotalSeconds > 0)
-        {
-            string timerText = $"{timeUntilNextEnergy.Minutes:D2}:{timeUntilNextEnergy.Seconds:D2}";
-            if (energyTimerText != null)
-            {
-                energyTimerText.text = $"Next Energy in: {timerText}";
-            }
-        }
-        else
-        {
-            UpdateEnergyBasedOnTime();
-        }
+    private void GetEnergyForDev(){
+        CurrentEnergy = 9;
+        lastEnergyUpdateTime = DateTime.Now;
+        SavePlayerData();
+        UpdateUI();
     }
-
 
     private void SavePlayerData()
     {
@@ -220,28 +202,6 @@ public class AppManager : MonoBehaviour
         CurrentGold = PlayerPrefs.GetInt("Gold", 0);
         CurrentEnergy = PlayerPrefs.GetInt("Energy", MAX_ENERGY);
     }
-
-    /*
-    //Better Saving methods, remember to get the Instance in the Awake function.
-
-    private void SavePlayerData()
-    {
-        if (saveManager != null)
-        {
-            saveManager.SavePlayerData(CurrentGold, CurrentEnergy);
-        }
-    }
-
-    private void LoadPlayerData()
-    {
-        if (saveManager != null)
-        {
-            var saveData = saveManager.LoadPlayerData();
-            CurrentGold = saveData.gold;
-            CurrentEnergy = saveData.energy;
-        }
-    }
-    */
 
     private void SetupSound()
     {
@@ -279,12 +239,6 @@ public class AppManager : MonoBehaviour
         paymentManager.BuyXEnergy(energyToAdd);
     }
 
-    public void PromptBuyUI()
-    {
-        Debug.Log("buy panel showing");
-        buyPanel.SetActive(true);
-    }
-
     private void OnApplicationPause(bool pauseStatus)
     {
         if (pauseStatus)
@@ -299,6 +253,27 @@ public class AppManager : MonoBehaviour
     private void OnApplicationQuit()
     {
         SavePlayerData();
+    }
+
+    public void AddGold(int amount)
+    {
+        CurrentGold += amount;
+        SavePlayerData();
+        UpdateUI();
+    }
+
+    public void StartGame()
+    {
+        if (CurrentEnergy >= ENERGY_COST_PER_PLAY)
+        {
+            CurrentEnergy -= ENERGY_COST_PER_PLAY;
+            SavePlayerData();
+            SceneManager.LoadSceneAsync("PlayScene");
+        }
+        else
+        {
+            Debug.Log("Not enough energy!");
+        }
     }
 }
 //code ends here

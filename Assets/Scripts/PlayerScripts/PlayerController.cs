@@ -81,6 +81,7 @@ public class PlayerController : MonoBehaviour
             healthBarSlider.value = currentHealth / maxHealth;
         }
     }
+    
     private void Die()
     {
         rb.velocity = Vector2.zero;

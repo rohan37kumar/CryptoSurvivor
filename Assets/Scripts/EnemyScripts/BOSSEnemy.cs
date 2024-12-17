@@ -1,10 +1,12 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BOSSEnemy : EnemyBase
 {
     [Header("Boss Settings")]
     [SerializeField] private float baseSpeed = 2f;
     [SerializeField] private float healthAmount = 300f;
+    //[SerializeField] private Slider healthBarSlider;
     [SerializeField] private float damageAmount = 50f;
 
     [Header("Attack Range")]
@@ -24,6 +26,8 @@ public class BOSSEnemy : EnemyBase
         moveSpeed = baseSpeed;
 
         animator = GetComponent<Animator>();
+
+        //UpdateHealthBar();
     }
 
     private void Update()
@@ -35,6 +39,14 @@ public class BOSSEnemy : EnemyBase
             Attack();
         }
     }
+
+    // private void UpdateHealthBar()
+    // {
+    //     if (healthBarSlider != null)
+    //     {
+    //         healthBarSlider.value = health / healthAmount;
+    //     }
+    // }
 
     public override void Move()
     {
@@ -77,6 +89,8 @@ public class BOSSEnemy : EnemyBase
     public override void TakeDamage(float damage)
     {
         health -= damage;
+
+        //UpdateHealthBar();
 
         if (health <= 0)
         {
