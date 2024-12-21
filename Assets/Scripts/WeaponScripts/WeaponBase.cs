@@ -36,7 +36,16 @@ public abstract class WeaponBase : MonoBehaviour
     
     protected float GetCurrentAttackSpeed()
     {
-        return baseAttackSpeed * SpeedModifier;
+        // Higher values now mean faster attacks
+        float baseAttacksPerSecond = 1f / baseAttackSpeed;
+        float agilityBonus = playerStats ? (playerStats.agilityLevel * 0.05f) : 0; // 5% faster per agility level
+        
+        // Apply all speed modifiers
+        float totalSpeedMultiplier = (1 + agilityBonus) * SpeedModifier;
+        float attacksPerSecond = baseAttacksPerSecond * totalSpeedMultiplier;
+        
+        // Convert back to seconds between attacks
+        return 1f / attacksPerSecond;
     }
     
     protected float GetCurrentRange()

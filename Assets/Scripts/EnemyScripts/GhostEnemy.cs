@@ -52,7 +52,7 @@ public class GhostEnemy : EnemyBase
     public override void Attack()
     {
         // Called when colliding with player
-        // Implementation depends on your damage system
+        playerController.TakeDamage(damageAmount);
     }
 
     public override void TakeDamage(float damage)

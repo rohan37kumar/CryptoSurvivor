@@ -5,7 +5,7 @@ public class SkeletonEnemy : EnemyBase
     [Header("Skeleton Settings")]
     [SerializeField] private float baseSpeed = 3.5f;
     [SerializeField] private float healthAmount = 80f;
-    [SerializeField] private float damageAmount = 15f;
+    [SerializeField] private float damageAmount = 10f;
 
     private Animator animator;
 
@@ -39,7 +39,8 @@ public class SkeletonEnemy : EnemyBase
     public override void Attack()
     {
         // Skeleton does damage on touch
-        Debug.Log("Skeleton attacks the player!");
+        playerController.TakeDamage(damageAmount);
+        //Debug.Log("Skeleton attacks the player!");
     }
 
     public override void TakeDamage(float damage)

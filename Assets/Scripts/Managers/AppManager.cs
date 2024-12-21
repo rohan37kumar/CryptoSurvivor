@@ -41,7 +41,7 @@ public class AppManager : MonoBehaviour
         }
 
         //Remove this after testing
-        GetEnergyForDev();
+        //GetEnergyForDev();
     }
 
     private void InitializeManagers()

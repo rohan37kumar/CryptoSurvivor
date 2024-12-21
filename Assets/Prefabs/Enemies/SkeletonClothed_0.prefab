@@ -186,4 +186,4 @@ MonoBehaviour:
   player: {fileID: 0}
   baseSpeed: 3.5
   healthAmount: 20
-  damageAmount: 5
+  damageAmount: 10

@@ -1,6 +1,7 @@
 using UnityEngine;
 using GameTypes;
 using System.Collections.Generic;
+using System.Collections;
 
 public class EnemySpawnManager : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class EnemySpawnManager : MonoBehaviour
         public float spawnInterval = 2f;
         public int baseEnemiesPerSpawn = 2;
         public float waveDuration = 30f;
+        public float waveCooldown = 15f;
         public bool includesBoss = false;
         [Range(1f, 2f)] public float difficultyMultiplier = 1.2f;
     }
@@ -21,6 +23,7 @@ public class EnemySpawnManager : MonoBehaviour
     [SerializeField] private Transform player;
     [SerializeField] private float minSpawnDistance = 15f;
     [SerializeField] private float maxSpawnDistance = 25f;
+    [SerializeField] private GameObject newWaveUIPanel;
 
     [Header("Difficulty Settings")]
     [SerializeField] private float globalDifficultyMultiplier = 1f;
@@ -55,11 +58,26 @@ public class EnemySpawnManager : MonoBehaviour
         UpdateDifficulty();
     }
 
+    private bool isInCooldown = false;
+    private float cooldownTimer = 0f;
+
     private void Update()
     {
         if (currentWave >= waves.Length) return;
 
         Wave wave = waves[currentWave];
+
+        if (isInCooldown)
+        {
+            cooldownTimer += Time.deltaTime;
+            if (cooldownTimer >= wave.waveCooldown)
+            {
+                isInCooldown = false;
+                AdvanceWave();
+            }
+            return;
+        }
+
         spawnTimer += Time.deltaTime;
         waveTimer += Time.deltaTime;
 
@@ -74,15 +92,22 @@ public class EnemySpawnManager : MonoBehaviour
 
         if (waveTimer >= wave.waveDuration)
         {
-            AdvanceWave();
+            StartWaveCooldown();
         }
     }
 
+    private void StartWaveCooldown()
+    {
+        isInCooldown = true;
+        cooldownTimer = 0f;
+        //Debug.Log($"Wave {currentWave + 1} completed. Cooldown started...");
+    }
     private void AdvanceWave()
     {
         currentWave++;
         waveTimer = 0;
         spawnTimer = 0;
+
 
         if (currentWave < waves.Length)
         {
@@ -93,6 +118,19 @@ public class EnemySpawnManager : MonoBehaviour
             {
                 SpawnBoss();
             }
+
+            //make the new wave ui panel active here for 3 seconds
+            StartCoroutine(ShowNewWaveUI());
+        }
+    }
+
+    private IEnumerator ShowNewWaveUI()
+    {
+        if (newWaveUIPanel != null)
+        {
+            newWaveUIPanel.SetActive(true);
+            yield return new WaitForSeconds(3f);
+            newWaveUIPanel.SetActive(false);
         }
     }
 

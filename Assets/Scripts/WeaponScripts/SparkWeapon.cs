@@ -3,8 +3,6 @@ using UnityEngine;
 public class SparkWeapon : WeaponBase
 {
     [SerializeField] private GameObject sparkPrefab;
-    //[SerializeField] private float projectileSpeed = 8f;
-    //[SerializeField] private float cooldown = 1f;
     
     private float lastAttackTime;
 
@@ -30,6 +28,6 @@ public class SparkWeapon : WeaponBase
     {
         level++;
         baseDamage *= 1.15f; // 15% damage increase per level
-        baseAttackSpeed *= 0.95f; // 5% faster attack speed per level
+        SpeedModifier *= 1.08f; // 8% speed increase per level
     }
 }

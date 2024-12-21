@@ -62,6 +62,7 @@ public class GoblinEnemy : EnemyBase
             }
 
             //Debug.Log("Goblin attacks the player!");
+            playerController.TakeDamage(damageAmount);
             attackTimer = attackCooldown;
         }
         else
