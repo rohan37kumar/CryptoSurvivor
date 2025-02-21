@@ -19,7 +19,6 @@ public class AppManager : MonoBehaviour
     private DateTime lastEnergyUpdateTime;
 
     private SaveManager saveManager;
-    private AEONPaymentManager paymentManager;
 
     [Header("Audio Settings")]
     [SerializeField] private AudioClip bkgMusic;
@@ -46,7 +45,6 @@ public class AppManager : MonoBehaviour
 
     private void InitializeManagers()
     {
-        paymentManager = GetComponent<AEONPaymentManager>();
         LoadPlayerData();
         SetupEnergySystem();
         SetupSound();
@@ -236,7 +234,7 @@ public class AppManager : MonoBehaviour
 
         int energyToAdd = Mathf.Min(numEnergy, MAX_ENERGY - CurrentEnergy);
 
-        paymentManager.BuyXEnergy(energyToAdd);
+        //buy the energies in some payment manager
     }
 
     private void OnApplicationPause(bool pauseStatus)
