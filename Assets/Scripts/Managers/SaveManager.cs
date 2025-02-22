@@ -1,12 +1,31 @@
 using UnityEngine;
 using System;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
-using System.Text;
+using System.Collections.Generic;
 
 public class SaveManager : MonoBehaviour
 {
     public static SaveManager Instance { get; private set; }
+
+    [Serializable]
+    public class PlayerStatsData
+    {
+        public float strength;
+        public float arcane;
+        public float agility;
+        public float endurance;
+        public float sense;
+
+        public PlayerStatsData() { }
+
+        public PlayerStatsData(PlayerStats stats)
+        {
+            strength = stats.strength;
+            arcane = stats.arcane;
+            agility = stats.agility;
+            endurance = stats.endurance;
+            sense = stats.sense;
+        }
+    }
 
     [Serializable]
     public class PlayerSaveData
@@ -14,7 +33,15 @@ public class SaveManager : MonoBehaviour
         public int gold;
         public int energy;
         public DateTime lastSaveTime;
+        public PlayerStatsData stats;
+        public List<WeaponData> weapons;
+        public int highScore;
     }
+
+    private const string SAVE_KEY = "PlayerSaveData";
+    private PlayerSaveData currentData;
+
+    public PlayerSaveData CurrentData => currentData;
 
     private void Awake()
     {
@@ -22,6 +49,7 @@ public class SaveManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            LoadData();
         }
         else
         {
@@ -29,26 +57,13 @@ public class SaveManager : MonoBehaviour
         }
     }
 
-    public void SavePlayerData(int gold, int energy)
+    public void SaveData()
     {
         try
         {
-            PlayerSaveData saveData = new PlayerSaveData
-            {
-                gold = gold,
-                energy = energy,
-                lastSaveTime = DateTime.Now
-            };
-
-            string json = JsonUtility.ToJson(saveData);
-            string encodedJson = Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
-
-            // Save to both PlayerPrefs and IndexedDB
-            PlayerPrefs.SetString("SaveData", encodedJson);
+            string json = JsonUtility.ToJson(currentData);
+            PlayerPrefs.SetString(SAVE_KEY, json);
             PlayerPrefs.Save();
-
-            // Additional WebGL-specific save using IndexedDB
-            SaveToIndexedDB(encodedJson);
         }
         catch (Exception e)
         {
@@ -56,59 +71,143 @@ public class SaveManager : MonoBehaviour
         }
     }
 
-    public PlayerSaveData LoadPlayerData()
+    private void LoadData()
     {
-        try
+        string json = PlayerPrefs.GetString(SAVE_KEY, "");
+        
+        if (string.IsNullOrEmpty(json))
         {
-            // Try to load from IndexedDB first
-            string encodedJson = LoadFromIndexedDB();
-
-            // If not found in IndexedDB, try PlayerPrefs
-            if (string.IsNullOrEmpty(encodedJson))
+            currentData = CreateDefaultData();
+        }
+        else
+        {
+            try
             {
-                encodedJson = PlayerPrefs.GetString("SaveData", "");
+                currentData = JsonUtility.FromJson<PlayerSaveData>(json);
             }
-
-            if (!string.IsNullOrEmpty(encodedJson))
+            catch
             {
-                string json = Encoding.UTF8.GetString(Convert.FromBase64String(encodedJson));
-                return JsonUtility.FromJson<PlayerSaveData>(json);
+                currentData = CreateDefaultData();
             }
         }
-        catch (Exception e)
-        {
-            Debug.LogError($"Error loading data: {e.Message}");
-        }
+    }
 
-        // Return default data if loading fails
+    private PlayerSaveData CreateDefaultData()
+    {
         return new PlayerSaveData
         {
             gold = 0,
             energy = 10,
-            lastSaveTime = DateTime.Now
+            lastSaveTime = DateTime.Now,
+            stats = new PlayerStatsData 
+            {
+                strength = 1,
+                arcane = 1,
+                agility = 1,
+                endurance = 1,
+                sense = 1
+            },
+            weapons = new List<WeaponData>(),
+            highScore = 0
         };
     }
 
-    private void SaveToIndexedDB(string data)
+    public void UpdatePlayerStats(PlayerStats stats)
     {
-#if UNITY_WEBGL && !UNITY_EDITOR
-        SaveToIndexedDBJS(data);
-#endif
+        currentData.stats = new PlayerStatsData(stats);
+        SaveData();
     }
 
-    private string LoadFromIndexedDB()
+    public void UpdateWeapons(List<WeaponData> weapons)
     {
-#if UNITY_WEBGL && !UNITY_EDITOR
-        return LoadFromIndexedDBJS();
-#else
-        return "";
-#endif
+        currentData.weapons = weapons;
+        SaveData();
     }
 
-    // JavaScript plugin interface
-    [System.Runtime.InteropServices.DllImport("__Internal")]
-    private static extern void SaveToIndexedDBJS(string data);
+    public void UpdateResources(int gold, int energy)
+    {
+        currentData.gold = gold;
+        currentData.energy = energy;
+        currentData.lastSaveTime = DateTime.Now;
+        SaveData();
+    }
 
-    [System.Runtime.InteropServices.DllImport("__Internal")]
-    private static extern string LoadFromIndexedDBJS();
+    public void UpdateHighScore(int score)
+    {
+        if (score > currentData.highScore)
+        {
+            currentData.highScore = score;
+            SaveData();
+        }
+    }
+
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        if (pauseStatus)
+        {
+            SaveData();
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        SaveData();
+    }
+
+    public void SaveGameSession(int sessionGold, int sessionScore)
+    {
+        currentData.gold += sessionGold;
+        
+        if (sessionScore > currentData.highScore)
+        {
+            currentData.highScore = sessionScore;
+        }
+        
+        SaveData();
+    }
+
+    public void LoadPlayerStats(PlayerStats playerStats)
+    {
+        if (playerStats == null)
+        {
+            Debug.LogWarning("Cannot load player stats: playerStats is null");
+            return;
+        }
+
+        if (currentData?.stats == null)
+        {
+            Debug.LogWarning("No saved stats found, initializing with default values");
+            currentData.stats = new PlayerStatsData();
+        }
+
+        // Copy stats from saved data
+        playerStats.strength = currentData.stats.strength;
+        playerStats.arcane = currentData.stats.arcane;
+        playerStats.agility = currentData.stats.agility;
+        playerStats.endurance = currentData.stats.endurance;
+        playerStats.sense = currentData.stats.sense;
+        playerStats.UpdateDerivedStats();
+    }
+
+    public void SavePlayerStats(PlayerStats playerStats)
+    {
+        if (playerStats == null)
+        {
+            Debug.LogWarning("Cannot save player stats: playerStats is null");
+            return;
+        }
+
+        if (currentData.stats == null)
+        {
+            currentData.stats = new PlayerStatsData();
+        }
+
+        // Copy stats to save data
+        currentData.stats.strength = playerStats.strength;
+        currentData.stats.arcane = playerStats.arcane;
+        currentData.stats.agility = playerStats.agility;
+        currentData.stats.endurance = playerStats.endurance;
+        currentData.stats.sense = playerStats.sense;
+        SaveData();
+    }
 }

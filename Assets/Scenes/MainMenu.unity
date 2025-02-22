@@ -52231,8 +52231,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CurrentGold: 0
   CurrentEnergy: 0
-  bkgMusic: {fileID: 8300000, guid: ef13fcdcbcc4a234e81114596c0ec575, type: 3}
-  musicVolume: 0.15
 --- !u!4 &1062424667
 Transform:
   m_ObjectHideFlags: 0
@@ -52365,9 +52363,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1062424665}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5cff4bbbba59ad245a67e99cb9ba7d0f, type: 3}
+  m_Script: {fileID: 11500000, guid: 0a5a8ff0756321b45a85c6bf4327c95e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  backgroundMusic: {fileID: 8300000, guid: ef13fcdcbcc4a234e81114596c0ec575, type: 3}
+  musicVolume: 0.3
+  sfxVolume: 1
 --- !u!1 &1062567237
 GameObject:
   m_ObjectHideFlags: 0

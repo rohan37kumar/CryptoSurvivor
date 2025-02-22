@@ -35,13 +35,21 @@ public class PlayerController : MonoBehaviour
         spriteRenderer = playerImage.GetComponent<SpriteRenderer>();
         animator = playerImage.GetComponent<Animator>();
 
-        currentHealth = maxHealth;
+        // Initialize stats if not already set
+        if (stats == null)
+        {
+            stats = GetComponent<PlayerStats>();
+        }
+
+        // Load saved stats
+        if (stats != null && SaveManager.Instance != null)
+        {
+            SaveManager.Instance.LoadPlayerStats(stats);
+        }
+
+        currentHealth = stats.maxHealth;
         UpdateHealthBar();
 
-        // if (!isAttacking)
-        // {
-        //     StartCoroutine(ContinuousAttack());
-        // }
     }
 
     private void Update()
@@ -87,6 +95,11 @@ public class PlayerController : MonoBehaviour
         rb.velocity = Vector2.zero;
         this.enabled = false;
 
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.SavePlayerStats(stats);
+        }
+
         if (GameManager.Instance != null)
         {
             GameManager.Instance.EndGame();
@@ -96,7 +109,7 @@ public class PlayerController : MonoBehaviour
 
     private void Move()
     {
-        float currentSpeed = baseSpeed * (1 + stats.agilityModifier);
+        float currentSpeed = baseSpeed * (1 + stats.moveSpeedModifier);
         rb.velocity = moveDirection.normalized * currentSpeed;
     }
 
@@ -176,7 +189,7 @@ public class PlayerController : MonoBehaviour
         EnemyBase enemy = enemyCollider.GetComponent<EnemyBase>();
         if (enemy != null)
         {
-            float damage = stats.baseStrength + stats.strengthLevel * 2;
+            float damage = stats.strength * 2f;
             enemy.TakeDamage(damage);
         }
     }

@@ -4,7 +4,8 @@ using UnityEngine;
 
 public abstract class WeaponBase : MonoBehaviour
 {
-    [Header("Weapon Stats")]
+    [Header("Weapon Properties")]
+    public WeaponType weaponType;
     public float baseDamage;
     public float baseAttackSpeed;
     public float baseRange;
@@ -31,14 +32,15 @@ public abstract class WeaponBase : MonoBehaviour
     
     protected float GetCurrentDamage()
     {
-        return baseDamage * DamageModifier * level;
+        float statMultiplier = playerStats ? playerStats.GetWeaponDamageMultiplier(weaponType) : 1f;
+        return baseDamage * DamageModifier * level * statMultiplier;
     }
     
     protected float GetCurrentAttackSpeed()
     {
         // Higher values now mean faster attacks
         float baseAttacksPerSecond = 1f / baseAttackSpeed;
-        float agilityBonus = playerStats ? (playerStats.agilityLevel * 0.05f) : 0; // 5% faster per agility level
+        float agilityBonus = playerStats ? (playerStats.agility * 0.05f) : 0; // 5% faster per agility level
         
         // Apply all speed modifiers
         float totalSpeedMultiplier = (1 + agilityBonus) * SpeedModifier;

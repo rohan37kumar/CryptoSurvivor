@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Session Stats")]
     private int goldCollectedThisSession;
+    private int sessionScore;
 
     private void Awake()
     {
@@ -25,6 +26,12 @@ public class GameManager : MonoBehaviour
 
         goldCollectedThisSession = 0;
         pauseMenuUI.SetActive(false);
+    }
+
+    private void Start()
+    {
+        goldCollectedThisSession = 0;
+        sessionScore = 0;
     }
 
     public void TogglePause()
@@ -53,17 +60,28 @@ public class GameManager : MonoBehaviour
         goldCollectedThisSession += amount;
     }
 
+    public void AddScore(int points)
+    {
+        sessionScore += points;
+    }
+
     public void EndGame()
     {
+        SaveManager.Instance.SaveGameSession(
+            goldCollectedThisSession, 
+            sessionScore
+        );
+
         if (AppManager.Instance != null)
         {
             AppManager.Instance.AddGold(goldCollectedThisSession);
         }
 
+        // Reset session values
         goldCollectedThisSession = 0;
+        sessionScore = 0;
         Time.timeScale = 1f;
         
-        // Load MainMenu scene
         StartCoroutine(LoadMainMenuScene());
     }
 

@@ -1,15 +1,14 @@
 using UnityEngine;
 
-public class SparkProjectile : ProjectileScript
+public class SparkProjectile : ProjectileBase
 {
     [SerializeField] private float homingSpeed = 5f;
     [SerializeField] private float detectionRadius = 10f;
     private Transform targetEnemy;
-    private Rigidbody2D rb;
 
-    private void Awake()
+    protected override void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
+        base.Awake();
         FindNearestEnemy();
     }
 

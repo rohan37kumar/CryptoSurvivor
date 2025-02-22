@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System;
 using System.Collections;
@@ -20,10 +19,6 @@ public class AppManager : MonoBehaviour
 
     private SaveManager saveManager;
 
-    [Header("Audio Settings")]
-    [SerializeField] private AudioClip bkgMusic;
-    [SerializeField] private float musicVolume = 0.5f;
-    private AudioSource musicSource;
 
     private void Awake()
     {
@@ -31,7 +26,8 @@ public class AppManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            InitializeManagers();
+            // Wait for SaveManager to be initialized
+            StartCoroutine(InitializeManagersWhenReady());
         }
         else
         {
@@ -43,11 +39,21 @@ public class AppManager : MonoBehaviour
         //GetEnergyForDev();
     }
 
+    private IEnumerator InitializeManagersWhenReady()
+    {
+        // Wait until SaveManager is available
+        while (SaveManager.Instance == null)
+        {
+            yield return null;
+        }
+        
+        InitializeManagers();
+    }
+
     private void InitializeManagers()
     {
         LoadPlayerData();
         SetupEnergySystem();
-        SetupSound();
     }
 
     private void OnEnable()
@@ -187,37 +193,36 @@ public class AppManager : MonoBehaviour
         UpdateUI();
     }
 
-    private void SavePlayerData()
-    {
-        PlayerPrefs.SetInt("Gold", CurrentGold);
-        PlayerPrefs.SetInt("Energy", CurrentEnergy);
-        PlayerPrefs.SetString("LastEnergyTime", lastEnergyUpdateTime.ToString("o"));  //ISO 8601 format
-        PlayerPrefs.Save();
-    }
-
     private void LoadPlayerData()
     {
-        CurrentGold = PlayerPrefs.GetInt("Gold", 0);
-        CurrentEnergy = PlayerPrefs.GetInt("Energy", MAX_ENERGY);
+        // Add null check
+        if (SaveManager.Instance == null || SaveManager.Instance.CurrentData == null)
+        {
+            Debug.LogWarning("SaveManager not initialized when loading player data");
+            return;
+        }
+        
+        var saveData = SaveManager.Instance.CurrentData;
+        CurrentGold = saveData.gold;
+        CurrentEnergy = saveData.energy;
+        
+        // Load the last energy update time
+        if (DateTime.TryParse(PlayerPrefs.GetString("LastEnergyTime", ""), out DateTime savedTime))
+        {
+            lastEnergyUpdateTime = savedTime;
+            UpdateEnergyBasedOnTime();
+        }
+        else
+        {
+            lastEnergyUpdateTime = DateTime.Now;
+        }
     }
 
-    private void SetupSound()
+    private void SavePlayerData()
     {
-        musicSource = GetComponent<AudioSource>();
-        if (musicSource == null)
-        {
-            musicSource = gameObject.AddComponent<AudioSource>();
-        }
-
-        musicSource.clip = bkgMusic;
-        musicSource.volume = musicVolume;
-        musicSource.loop = true;
-        musicSource.playOnAwake = false;
-
-        if (!musicSource.isPlaying && bkgMusic != null)
-        {
-            musicSource.Play();
-        }
+        SaveManager.Instance.UpdateResources(CurrentGold, CurrentEnergy);
+        PlayerPrefs.SetString("LastEnergyTime", lastEnergyUpdateTime.ToString("o"));
+        PlayerPrefs.Save();
     }
 
     public void Buy1Energy() => BuyEnergy(1);

@@ -1,33 +1,42 @@
 using UnityEngine;
+
 public class PlayerStats : MonoBehaviour
 {
-    [Header("Base Stats")]
-    public float baseHealth;
-    public float baseMana;
-    public float baseStamina;
-    public float baseStrength;
-    public float baseDexterity;
-    public float baseResistance;
-    public float baseWisdom;
-    public float baseAgility;
-    public float baseLuck;
+    [Header("Core Stats")]
+    public float strength;      // Affects physical weapon damage
+    public float arcane;        // Affects magical weapon damage
+    public float agility;       // Affects movement speed
+    public float endurance;     // Affects max health
+    public float sense;         // Reserved for future mechanics
 
-    [Header("Leveled Stats")]
+    [Header("Derived Stats")]
+    public float maxHealth;
     public float currentHealth;
-    public float currentMana;
-    public float currentStamina;
-    public int strengthLevel;
-    public int dexterityLevel;
-    public int resistanceLevel;
-    public int wisdomLevel;
-    public int agilityLevel;
-    public int agilityModifier;
-    public int luckLevel;
-    
-    [Header("Resources")]
-    public int gold;
-    public int experience;
-    public int level;
-    public float cryptoTokens;
+    public float moveSpeedModifier;
 
+    [Header("Stat Scaling")]
+    [SerializeField] private float healthPerEndurance = 10f;
+    [SerializeField] private float speedPerAgility = 0.05f;
+    [SerializeField] private float baseHealth = 100f;
+    [SerializeField] private float baseSpeed = 1f;
+
+    private void Start()
+    {
+        UpdateDerivedStats();
+    }
+
+    public void UpdateDerivedStats()
+    {
+        // Calculate max health
+        maxHealth = baseHealth + (endurance * healthPerEndurance);
+        if (currentHealth <= 0) currentHealth = maxHealth;
+
+        // Calculate move speed modifier
+        moveSpeedModifier = baseSpeed + (agility * speedPerAgility);
+    }
+
+    public float GetWeaponDamageMultiplier(WeaponType weaponType)
+    {
+        return weaponType == WeaponType.Strength ? (1f + (strength * 0.1f)) : (1f + (arcane * 0.1f));
+    }
 }

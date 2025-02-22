@@ -51410,29 +51410,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfd303ae9ee42e54aae3e7785836128b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseHealth: 100
-  baseMana: 100
-  baseStamina: 100
-  baseStrength: 10
-  baseDexterity: 10
-  baseResistance: 10
-  baseWisdom: 10
-  baseAgility: 10
-  baseLuck: 14
+  strength: 1
+  arcane: 1
+  agility: 1
+  endurance: 1
+  sense: 1
+  maxHealth: 100
   currentHealth: 100
-  currentMana: 100
-  currentStamina: 100
-  strengthLevel: 10
-  dexterityLevel: 10
-  resistanceLevel: 10
-  wisdomLevel: 10
-  agilityLevel: 10
-  agilityModifier: 1
-  luckLevel: 14
-  gold: 0
-  experience: 0
-  level: 1
-  cryptoTokens: 0
+  moveSpeedModifier: 0
+  healthPerEndurance: 10
+  speedPerAgility: 0.05
+  baseHealth: 100
+  baseSpeed: 1
 --- !u!114 &646887500
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -51530,6 +51519,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dedfa3b8389e4ea488c499a71a967cc0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponType: 0
   baseDamage: 10
   baseAttackSpeed: 1
   baseRange: 15
