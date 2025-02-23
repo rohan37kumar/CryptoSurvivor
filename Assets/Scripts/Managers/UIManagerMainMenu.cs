@@ -12,21 +12,30 @@ public class UIManagerMainMenu : MonoBehaviour
     [Header("UI Panels")]
     public GameObject pauseMenu;
     public GameObject buyPanel;
+    public GameObject statsPanel;
     
+    [Header("Panel Toggle Buttons")]
+    [SerializeField] private Button[] buyPanelToggleButtons;  // Array for buy panel buttons
+    [SerializeField] private Button[] statsPanelToggleButtons;  // Array for stats panel buttons
+
     [Header("UI Elements")]
     [SerializeField] private Text goldText;
     [SerializeField] private Text energyText;
     [SerializeField] private Text energyTimerText;
     public Text tokenBalance;
 
-    [Header("Buttons")]
+    [Header("Stats Display")]
+    [SerializeField] private Text strengthText;
+    [SerializeField] private Text arcaneText;
+    [SerializeField] private Text agilityText;
+    [SerializeField] private Text enduranceText;
+    [SerializeField] private Text senseText;
+
+    [Header("Action Buttons")]
     [SerializeField] private Button playButton;
-    [SerializeField] private Button buyEnergyButton;
     [SerializeField] private Button buy1EnergyButton;
     [SerializeField] private Button buy3EnergyButton;
     [SerializeField] private Button buyFullEnergyButton;
-    [SerializeField] private Button crossButton;
-    
 
     private void Awake()
     {
@@ -49,6 +58,26 @@ public class UIManagerMainMenu : MonoBehaviour
 
     private void SetupButtons()
     {
+        // Setup buy panel toggle buttons
+        foreach (Button button in buyPanelToggleButtons)
+        {
+            if (button != null)
+            {
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(ToggleBuyPanel);
+            }
+        }
+
+        // Setup stats panel toggle buttons
+        foreach (Button button in statsPanelToggleButtons)
+        {
+            if (button != null)
+            {
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(ToggleStatsPanel);
+            }
+        }
+
         if (playButton != null)
         {
             playButton.onClick.RemoveAllListeners();
@@ -56,17 +85,6 @@ public class UIManagerMainMenu : MonoBehaviour
                 if (AppManager.Instance != null)
                 {
                     AppManager.Instance.StartGame();
-                }
-            });
-        }
-
-        if (buyEnergyButton != null)
-        {
-            buyEnergyButton.onClick.RemoveAllListeners();
-            buyEnergyButton.onClick.AddListener(() => {
-                if (AppManager.Instance != null)
-                {
-                    AppManager.Instance.PromptBuyUI();
                 }
             });
         }
@@ -103,17 +121,6 @@ public class UIManagerMainMenu : MonoBehaviour
                 }
             });
         }
-
-        if (crossButton != null)
-        {
-            crossButton.onClick.RemoveAllListeners();
-            crossButton.onClick.AddListener(() => {
-                if (AppManager.Instance != null)
-                {
-                    AppManager.Instance.PromptBuyUI();
-                }
-            });
-        }
     }
 
     public void UpdateResourceUI(int gold, int currentEnergy, int maxEnergy)
@@ -135,6 +142,31 @@ public class UIManagerMainMenu : MonoBehaviour
         if (buyPanel != null)
         {
             buyPanel.SetActive(!buyPanel.activeSelf);
+        }
+    }
+
+    public void ToggleStatsPanel()
+    {
+        if (statsPanel != null)
+        {
+            statsPanel.SetActive(!statsPanel.activeSelf);
+            if (statsPanel.activeSelf)
+            {
+                UpdateStatsDisplay();
+            }
+        }
+    }
+
+    private void UpdateStatsDisplay()
+    {
+        if (SaveManager.Instance != null && SaveManager.Instance.CurrentData != null && SaveManager.Instance.CurrentData.stats != null)
+        {
+            var statsData = SaveManager.Instance.CurrentData.stats;
+            if (strengthText) strengthText.text = $"Strength: {statsData.strength}";
+            if (arcaneText) arcaneText.text = $"Arcane: {statsData.arcane}";
+            if (agilityText) agilityText.text = $"Agility: {statsData.agility}";
+            if (enduranceText) enduranceText.text = $"Endurance: {statsData.endurance}";
+            if (senseText) senseText.text = $"Sense: {statsData.sense}";
         }
     }
 

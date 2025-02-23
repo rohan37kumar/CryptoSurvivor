@@ -101,11 +101,11 @@ public class SaveManager : MonoBehaviour
             lastSaveTime = DateTime.Now,
             stats = new PlayerStatsData 
             {
-                strength = 1,
-                arcane = 1,
-                agility = 1,
-                endurance = 1,
-                sense = 1
+                strength = 5,
+                arcane = 5,
+                agility = 5,
+                endurance = 5,
+                sense = 5
             },
             weapons = new List<WeaponData>(),
             highScore = 0

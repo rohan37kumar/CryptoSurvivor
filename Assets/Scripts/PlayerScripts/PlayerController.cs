@@ -22,9 +22,8 @@ public class PlayerController : MonoBehaviour
     private Vector2 moveDirection;
 
     [Header("Attack Settings")]
-    [SerializeField] private float attackRange = 1f;
-    [SerializeField] private float attackAngle = 45f;
-    [SerializeField] private float closeRangeRadius = 0.3f;
+    [SerializeField] private float attackRange = 2f;
+    [SerializeField] private float closeRangeRadius = 0.5f;
     [SerializeField] private float attackInterval = 1f;
     [SerializeField] private float attackDuration = 0.5f;
     private bool isAttacking = false;
@@ -173,17 +172,18 @@ public class PlayerController : MonoBehaviour
                 if (distanceToEnemy <= closeRangeRadius)
                 {
                     ApplyDamage(hit);
-                    continue; // Skip angle check for close enemies
+                    continue;
                 }
 
-                float angleToEnemy = Vector2.Angle(attackDirection, directionToEnemy);
-                if (angleToEnemy <= attackAngle / 2)
+                float dotProduct = Vector2.Dot(attackDirection, directionToEnemy);
+                if (dotProduct > 0)
                 {
                     ApplyDamage(hit);
                 }
             }
         }
     }
+
     private void ApplyDamage(Collider2D enemyCollider)
     {
         EnemyBase enemy = enemyCollider.GetComponent<EnemyBase>();
